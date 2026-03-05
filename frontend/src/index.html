@@ -2,19 +2,21 @@
 <html lang="ru" data-theme="light">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <title>Мой Трекер</title>
   <link rel="stylesheet" href="style.css" />
-  <link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#ff9eb5">
-<link rel="apple-touch-icon" href="/192.png">
-<script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/sw.js');
-    });
-  }
-</script>
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#ff9eb5" />
+  <link rel="apple-touch-icon" href="/192.png" />
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js');
+      });
+    }
+  </script>
 </head>
 <body>
   <!-- Плавающие кнопки -->
@@ -68,15 +70,15 @@
 
         <div class="form-group">
           <label>Имя</label>
-          <input type="text" id="name" placeholder="Ваша фамилия и имя" />
+          <input type="text" id="name" placeholder="Иван Петров" />
         </div>
         <div class="form-group">
           <label>О себе</label>
-          <input type="text" id="about" placeholder="Чем вы занимаетесь" />
+          <input type="text" id="about" placeholder="Типа программист" />
         </div>
         <div class="form-group">
           <label>День рождения</label>
-          <input type="text" id="dob" placeholder="Дата рождения" maxlength="10" />
+          <input type="text" id="dob" placeholder="30.03.1933" maxlength="10" />
         </div>
         <button id="save-profile" class="btn-primary">Сохранить</button>
       </div>
@@ -102,7 +104,6 @@
       <div class="card">
         <h2>Сегодня <span id="today-date">19 февраля</span></h2>
 
-        <!-- Вода -->
         <div class="habit">
           <div class="habit-header"><span>💧 Вода</span><span id="water-total">0.5 л</span></div>
           <div class="habit-controls">
@@ -113,7 +114,6 @@
           <div class="total">Всего: <span id="water-sum">0.5 л</span></div>
         </div>
 
-        <!-- Спорт -->
         <div class="habit">
           <div class="habit-header"><span>🏃 Спорт</span><span id="sport-total">10 мин</span></div>
           <div class="habit-controls">
@@ -124,7 +124,6 @@
           <div class="total">Всего: <span id="sport-sum">10 мин</span></div>
         </div>
 
-        <!-- Чтение -->
         <div class="habit">
           <div class="habit-header"><span>📚 Чтение</span><span id="read-total">1 мин</span></div>
           <div class="habit-controls">
@@ -135,7 +134,6 @@
           <div class="total">Всего: <span id="read-sum">1 мин</span></div>
         </div>
 
-        <!-- Сон -->
         <div class="habit">
           <div class="habit-header"><span>😴 Сон</span><span id="sleep-total">7 ч</span></div>
           <div class="habit-controls">
@@ -146,7 +144,6 @@
           <div class="total">Всего: <span id="sleep-sum">7 ч</span></div>
         </div>
 
-        <!-- Прогулка -->
         <div class="habit">
           <div class="habit-header"><span>🚶 Прогулка</span><span id="walk-total">20 мин</span></div>
           <div class="habit-controls">
@@ -173,6 +170,26 @@
         <div class="stat-card"><span id="walk-stats">20 мин</span><br/>прогулки</div>
         <div class="stat-card"><span id="actions-total">0</span><br/>всего действий</div>
       </div>
+
+      <!-- Выбор даты -->
+      <div class="day-selector">
+        <h3>Выберите дату</h3>
+        <input type="date" id="date-picker" />
+      </div>
+
+      <!-- Привычки за выбранный день -->
+      <div id="selected-habits" class="card">
+        <h3>Привычки за <span id="selected-date-label">сегодня</span></h3>
+        <div id="habits-detail"></div>
+      </div>
+
+      <!-- График -->
+      <div class="chart-container">
+        <h3>Прогресс за 7 дней</h3>
+        <canvas id="habits-chart" height="150"></canvas>
+      </div>
+
+      <!-- Заметки за сегодня -->
       <div id="daily-notes" class="card">
         <h3>Заметки за сегодня</h3>
         <div id="daily-notes-list"></div>
@@ -180,7 +197,7 @@
     </section>
   </main>
 
-  <!-- Модалка быстрой заметки -->
+  <!-- Модалки -->
   <div id="quick-modal" class="modal-overlay" style="display:none;">
     <div class="modal-content">
       <h3>Быстрая заметка</h3>
@@ -189,6 +206,19 @@
       <div class="modal-footer">
         <button id="quick-cancel" class="btn-outline">Отмена</button>
         <button id="quick-save" class="btn-primary">Сохранить</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="edit-modal" class="modal-overlay" style="display:none;">
+    <div class="modal-content">
+      <h3>Редактировать заметку</h3>
+      <input type="hidden" id="edit-id" />
+      <input type="text" id="edit-title" placeholder="Заголовок" />
+      <textarea id="edit-text" placeholder="Текст..."></textarea>
+      <div class="modal-footer">
+        <button id="edit-cancel" class="btn-outline">Отмена</button>
+        <button id="edit-save" class="btn-primary">Сохранить</button>
       </div>
     </div>
   </div>

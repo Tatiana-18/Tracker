@@ -150,10 +150,12 @@ document.addEventListener('DOMContentLoaded', function () {
     updateStats();
   }
 
-  // === Рендер заметки ===
+  // === Рендер заметки с действиями ===
   function createNoteElement(note) {
     const div = document.createElement('div');
     div.className = 'card';
+    div.dataset.id = note.id;
+
     const lines = note.text.split('\n').map(l => l.trim()).filter(l => l);
     let listHTML = '';
     if (lines.length > 0) {
@@ -163,13 +165,58 @@ document.addEventListener('DOMContentLoaded', function () {
         listHTML = '<ul>' + lines.map(l => `<li>${l}</li>`).join('') + '</ul>';
       }
     }
+
     div.innerHTML = `
       <div class="note-title">${note.title}</div>
       <div class="note-date">${note.date}</div>
       ${listHTML}
+      <div class="note-actions">
+        <button class="btn-outline edit-note">✏️</button>
+        <button class="btn-outline delete-note">🗑️</button>
+      </div>
     `;
+
+    div.querySelector('.delete-note').addEventListener('click', () => {
+      if (confirm('Удалить заметку?')) {
+        const notes = JSON.parse(localStorage.getItem('notes') || '[]');
+        const filtered = notes.filter(n => n.id !== note.id);
+        localStorage.setItem('notes', JSON.stringify(filtered));
+        renderNotes();
+        updateStats();
+      }
+    });
+
+    div.querySelector('.edit-note').addEventListener('click', () => {
+      document.getElementById('edit-id').value = note.id;
+      document.getElementById('edit-title').value = note.title;
+      document.getElementById('edit-text').value = note.text;
+      document.getElementById('edit-modal').style.display = 'flex';
+    });
+
     return div;
   }
+
+  // === Сохранение редактирования ===
+  document.getElementById('edit-save')?.addEventListener('click', () => {
+    const id = parseInt(document.getElementById('edit-id').value);
+    const title = document.getElementById('edit-title').value.trim() || 'Без заголовка';
+    const text = document.getElementById('edit-text').value.trim();
+    if (!text) return;
+
+    const notes = JSON.parse(localStorage.getItem('notes') || '[]');
+    const index = notes.findIndex(n => n.id === id);
+    if (index !== -1) {
+      notes[index] = { ...notes[index], title, text };
+      localStorage.setItem('notes', JSON.stringify(notes));
+      renderNotes();
+      document.getElementById('edit-modal').style.display = 'none';
+      alert('Заметка обновлена!');
+    }
+  });
+
+  document.getElementById('edit-cancel')?.addEventListener('click', () => {
+    document.getElementById('edit-modal').style.display = 'none';
+  });
 
   function renderNotes() {
     const container = document.getElementById('notes-list');
@@ -185,7 +232,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  // === Привычки (5 штук) ===
+  // === Привычки ===
   const habitKeys = ['water', 'sport', 'read', 'sleep', 'walk'];
   const units = { water: ' л', sport: ' мин', read: ' мин', sleep: ' ч', walk: ' мин' };
 
@@ -222,6 +269,7 @@ document.addEventListener('DOMContentLoaded', function () {
       log.unshift(habits);
       localStorage.setItem('habitsLog', JSON.stringify(log));
       updateStats();
+      renderChart();
       alert('Прогресс сохранён!');
     });
   }
@@ -231,12 +279,99 @@ document.addEventListener('DOMContentLoaded', function () {
   if (saveProfile) {
     saveProfile.addEventListener('click', () => {
       localStorage.setItem('profile', JSON.stringify({
-        name: document.getElementById('name')?.value.trim() || 'Ваша фамилия и имя',
-        about: document.getElementById('about')?.value.trim() || 'Чем вы занимаетесь',
-        dob: document.getElementById('dob')?.value.trim() || 'Дата рождения'
+        name: document.getElementById('name')?.value.trim() || 'Иван Петров',
+        about: document.getElementById('about')?.value.trim() || 'Типа программист',
+        dob: document.getElementById('dob')?.value.trim() || '30.03.1933'
       }));
       alert('Профиль сохранён!');
     });
+  }
+
+  // === Выбор даты ===
+  const datePicker = document.getElementById('date-picker');
+  const today = new Date();
+  datePicker.valueAsDate = today;
+
+  datePicker.addEventListener('change', renderHabitsForDate);
+
+  function renderHabitsForDate() {
+    const selectedDate = datePicker.value; // YYYY-MM-DD
+    const formatted = selectedDate.split('-').reverse().join('.'); // DD.MM.YYYY
+    document.getElementById('selected-date-label').textContent = formatted;
+
+    const habitsLog = JSON.parse(localStorage.getItem('habitsLog') || '[]');
+    const dayData = habitsLog.find(h => h.date === formatted);
+
+    const container = document.getElementById('habits-detail');
+    if (!dayData) {
+      container.innerHTML = '<p>Нет данных за этот день</p>';
+      return;
+    }
+
+    const habitNames = {
+      water: '💧 Вода',
+      sport: '🏃 Спорт',
+      read: '📚 Чтение',
+      sleep: '😴 Сон',
+      walk: '🚶 Прогулка'
+    };
+
+    let html = '';
+    for (const key of habitKeys) {
+      const value = dayData[key].value;
+      const unit = units[key];
+      const done = dayData[key].done ? '✅' : '❌';
+      html += `<div class="habit-row"><strong>${habitNames[key]}</strong>: ${value}${unit} ${done}</div>`;
+    }
+    container.innerHTML = html;
+  }
+
+  // === График ===
+  function renderChart() {
+    const ctx = document.getElementById('habits-chart');
+    if (!ctx) return;
+
+    const habitsLog = JSON.parse(localStorage.getItem('habitsLog') || []);
+    const last7 = habitsLog.slice(0, 7).reverse();
+
+    const canvas = ctx;
+    const ctx2d = canvas.getContext('2d');
+    const width = canvas.scrollWidth;
+    const height = canvas.height;
+    canvas.width = width;
+    ctx2d.clearRect(0, 0, width, height);
+
+    if (last7.length === 0) {
+      ctx2d.fillStyle = '#777';
+      ctx2d.font = '14px sans-serif';
+      ctx2d.fillText('Нет данных', 20, height / 2);
+      return;
+    }
+
+    const labels = last7.map(h => h.date);
+    const waterData = last7.map(h => h.water.value);
+    const sportData = last7.map(h => h.sport.value);
+
+    const barWidth = Math.max(10, (width - 40) / labels.length - 4);
+    const maxWater = Math.max(...waterData, 1);
+    const maxSport = Math.max(...sportData, 1);
+
+    for (let i = 0; i < labels.length; i++) {
+      const x = 20 + i * (barWidth + 4);
+      const waterHeight = (waterData[i] / maxWater) * (height - 40);
+      const sportHeight = (sportData[i] / maxSport) * (height - 40);
+
+      ctx2d.fillStyle = '#ff9eb5';
+      ctx2d.fillRect(x, height - 20 - waterHeight, barWidth / 2, waterHeight);
+
+      ctx2d.fillStyle = '#ffb380';
+      ctx2d.fillRect(x + barWidth / 2, height - 20 - sportHeight, barWidth / 2, sportHeight);
+
+      ctx2d.fillStyle = '#777';
+      ctx2d.font = '10px sans-serif';
+      ctx2d.textAlign = 'center';
+      ctx2d.fillText(labels[i], x + barWidth / 2, height - 5);
+    }
   }
 
   // === Загрузка данных ===
@@ -282,4 +417,6 @@ document.addEventListener('DOMContentLoaded', function () {
   loadHabits();
   renderNotes();
   updateStats();
+  renderHabitsForDate();
+  renderChart();
 });

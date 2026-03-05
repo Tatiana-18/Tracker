@@ -29,7 +29,9 @@ body {
   background-color: var(--bg);
   color: var(--text);
   line-height: 1.5;
-  padding-bottom: 70px;
+  padding-bottom: calc(70px + env(safe-area-inset-bottom));
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
   -webkit-font-smoothing: antialiased;
 }
 
@@ -43,6 +45,7 @@ body {
   border-top: 1px solid var(--border);
   box-shadow: 0 -2px 10px var(--shadow);
   z-index: 100;
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
 .nav-item {
@@ -72,10 +75,14 @@ body {
 }
 
 .content {
-  max-width: 400px;
+  max-width: 428px;
   margin: 0 auto;
-  padding: 20px;
+  padding: 20px 16px;
 }
+
+@media (max-width: 427px) { .content { max-width: 393px; } }
+@media (max-width: 392px) { .content { max-width: 390px; } }
+@media (max-width: 389px) { .content { max-width: 375px; } }
 
 .tab {
   display: none;
@@ -287,7 +294,17 @@ textarea {
   margin-bottom: 10px;
 }
 
-/* Списки — КЛЮЧЕВОЙ БЛОК */
+.note-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.note-actions button {
+  flex: 1;
+}
+
+/* Списки */
 ul, ol {
   padding-left: 24px;
   margin: 10px 0;
@@ -327,10 +344,10 @@ li {
   justify-content: center;
 }
 
-#quick-add-btn { bottom: 80px; }
-#theme-toggle { bottom: 150px; }
+#quick-add-btn { bottom: calc(80px + env(safe-area-inset-bottom)); }
+#theme-toggle { bottom: calc(150px + env(safe-area-inset-bottom)); }
 
-/* Модалка */
+/* Модалки */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -365,6 +382,34 @@ li {
   margin-top: 20px;
 }
 
+/* Дата и график */
+#date-picker {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.habit-row {
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+.habit-row:last-child {
+  border-bottom: none;
+}
+
+.chart-container {
+  margin-top: 20px;
+}
+#habits-chart {
+  width: 100%;
+  background: var(--bg);
+  border-radius: 12px;
+}
+
+/* Адаптация под мелкие экраны */
 @media (max-width: 375px) {
   .stats-grid {
     grid-template-columns: 1fr;
