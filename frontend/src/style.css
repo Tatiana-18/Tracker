@@ -423,3 +423,10 @@ li {
 button, input, textarea {
   -webkit-tap-highlight-color: transparent;
 }
+
+/* Отступы для статистики и выбора даты */
+#stats .stats-grid,
+#stats .day-selector {
+  margin-left: 16px;
+  margin-right: 16px;
+}
