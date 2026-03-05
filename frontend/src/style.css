@@ -441,6 +441,6 @@ button, input, textarea {
   color: var(--text);
   font-size: 16px;
   /* Добавляем отступы по бокам */
-  margin-right: 16px;
+  margin-right: 36px;
   box-sizing: border-box; /* чтобы ширина оставалась 100% с учётом отступов */
 }
