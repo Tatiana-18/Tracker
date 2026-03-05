@@ -231,9 +231,9 @@ document.addEventListener('DOMContentLoaded', function () {
   if (saveProfile) {
     saveProfile.addEventListener('click', () => {
       localStorage.setItem('profile', JSON.stringify({
-        name: document.getElementById('name')?.value.trim() || 'Иван Петров',
-        about: document.getElementById('about')?.value.trim() || 'Типа программист',
-        dob: document.getElementById('dob')?.value.trim() || '30.03.1933'
+        name: document.getElementById('name')?.value.trim() || 'Ваша фамилия и имя',
+        about: document.getElementById('about')?.value.trim() || 'Чем вы занимаетесь',
+        dob: document.getElementById('dob')?.value.trim() || 'Дата рождения'
       }));
       alert('Профиль сохранён!');
     });
