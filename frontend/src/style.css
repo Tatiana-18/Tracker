@@ -425,22 +425,23 @@ button, input, textarea {
 }
 
 /* Отступы для статистики и выбора даты */
-#stats .stats-grid,
-#stats .day-selector {
+#stats .stats-grid {
   margin-left: 16px;
   margin-right: 16px;
 }
 
-/* Отступы для выбора даты */
 #date-picker {
-  width: 100%;
+  /* Убираем width: 100% */
+  width: auto;
+  /* Задаём максимальную ширину как у карточки */
+  max-width: calc(100% - 32px); /* 16px слева + 16px справа = 32px */
   padding: 12px;
   border: 1px solid var(--border);
   border-radius: 12px;
   background: var(--bg);
   color: var(--text);
   font-size: 16px;
-  /* Добавляем отступы по бокам */
-  margin-right: 36px;
-  box-sizing: border-box; /* чтобы ширина оставалась 100% с учётом отступов */
+  display: block;
+  margin: 0 auto 20px auto; /* центрируем и добавляем отступ снизу */
+  box-sizing: border-box;
 }
