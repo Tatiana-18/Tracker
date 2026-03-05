@@ -425,10 +425,16 @@ button, input, textarea {
 }
 
 /* Отступы для статистики и выбора даты */
-#stats .stats-grid {
+#stats .stats-grid,
+#stats .day-selector {
   margin-left: 16px;
   margin-right: 16px;
 }
+
+#stats .day-selector {
+  text-align: center;
+}
+
 
 #date-picker {
   /* Убираем width: 100% */
