@@ -1,5 +1,4 @@
 document.addEventListener('DOMContentLoaded', function () {
-  // === Вспомогательные функции ===
   function formatDate(date) {
     const d = String(date.getDate()).padStart(2, '0');
     const m = String(date.getMonth() + 1).padStart(2, '0');
@@ -12,10 +11,9 @@ document.addEventListener('DOMContentLoaded', function () {
     return `${now.getDate()} ${months[now.getMonth()]}`;
   }
 
-  // === Инициализация ===
   document.getElementById('today-date').textContent = getTodayLabel();
 
-  // === Тема ===
+  // Тема
   const themeToggle = document.getElementById('theme-toggle');
   const savedTheme = localStorage.getItem('theme') || 'light';
   document.documentElement.setAttribute('data-theme', savedTheme);
@@ -29,7 +27,7 @@ document.addEventListener('DOMContentLoaded', function () {
     themeToggle.textContent = newTheme === 'dark' ? '☀️' : '🌙';
   });
 
-  // === Навигация ===
+  // Навигация
   document.querySelectorAll('.nav-item').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
@@ -39,7 +37,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 
-  // === Фото профиля ===
+  // Фото профиля
   const photoUpload = document.getElementById('photo-upload');
   const profilePhoto = document.getElementById('profile-photo');
   const photoPlaceholder = document.getElementById('photo-placeholder');
@@ -67,7 +65,7 @@ document.addEventListener('DOMContentLoaded', function () {
     photoPlaceholder.style.display = 'none';
   }
 
-  // === Маска даты ===
+  // Маска даты
   const dobInput = document.getElementById('dob');
   if (dobInput) {
     dobInput.addEventListener('input', e => {
@@ -86,7 +84,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  // === Тип заметки ===
+  // Тип заметки
   let noteType = 'bullet';
   const bulletBtn = document.getElementById('type-bullet');
   const numberBtn = document.getElementById('type-number');
@@ -102,7 +100,7 @@ document.addEventListener('DOMContentLoaded', function () {
     bulletBtn.classList.remove('active');
   });
 
-  // === Быстрое добавление ===
+  // Быстрое добавление
   const quickBtn = document.getElementById('quick-add-btn');
   const quickModal = document.getElementById('quick-modal');
   if (quickBtn && quickModal) {
@@ -125,7 +123,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  // === Основное добавление ===
+  // Основное добавление
   const addNoteBtn = document.getElementById('add-note');
   if (addNoteBtn) {
     addNoteBtn.addEventListener('click', () => {
@@ -140,7 +138,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  // === Сохранение заметки ===
+  // Сохранение заметки
   function saveNote(title, text, type) {
     const note = { id: Date.now(), title, text, date: formatDate(new Date()), type };
     const notes = JSON.parse(localStorage.getItem('notes') || '[]');
@@ -150,7 +148,7 @@ document.addEventListener('DOMContentLoaded', function () {
     updateStats();
   }
 
-  // === Рендер заметки с действиями ===
+  // Рендер заметки
   function createNoteElement(note) {
     const div = document.createElement('div');
     div.className = 'card';
@@ -196,7 +194,7 @@ document.addEventListener('DOMContentLoaded', function () {
     return div;
   }
 
-  // === Сохранение редактирования ===
+  // Редактирование
   document.getElementById('edit-save')?.addEventListener('click', () => {
     const id = parseInt(document.getElementById('edit-id').value);
     const title = document.getElementById('edit-title').value.trim() || 'Без заголовка';
@@ -232,7 +230,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  // === Привычки ===
+  // Привычки
   const habitKeys = ['water', 'sport', 'read', 'sleep', 'walk'];
   const units = { water: ' л', sport: ' мин', read: ' мин', sleep: ' ч', walk: ' мин' };
 
@@ -274,20 +272,20 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  // === Профиль ===
+  // Профиль
   const saveProfile = document.getElementById('save-profile');
   if (saveProfile) {
     saveProfile.addEventListener('click', () => {
       localStorage.setItem('profile', JSON.stringify({
-        name: document.getElementById('name')?.value.trim() || 'Иван Петров',
-        about: document.getElementById('about')?.value.trim() || 'Типа программист',
-        dob: document.getElementById('dob')?.value.trim() || '30.03.1933'
+        name: document.getElementById('name')?.value.trim() || 'Ваше имя и фамилия',
+        about: document.getElementById('about')?.value.trim() || 'Чем вы занимаетесь',
+        dob: document.getElementById('dob')?.value.trim() || 'День рождения'
       }));
       alert('Профиль сохранён!');
     });
   }
 
-  // === Выбор даты ===
+  // Выбор даты
   const datePicker = document.getElementById('date-picker');
   const today = new Date();
   datePicker.valueAsDate = today;
@@ -295,8 +293,8 @@ document.addEventListener('DOMContentLoaded', function () {
   datePicker.addEventListener('change', renderHabitsForDate);
 
   function renderHabitsForDate() {
-    const selectedDate = datePicker.value; // YYYY-MM-DD
-    const formatted = selectedDate.split('-').reverse().join('.'); // DD.MM.YYYY
+    const selectedDate = datePicker.value;
+    const formatted = selectedDate.split('-').reverse().join('.');
     document.getElementById('selected-date-label').textContent = formatted;
 
     const habitsLog = JSON.parse(localStorage.getItem('habitsLog') || '[]');
@@ -326,25 +324,30 @@ document.addEventListener('DOMContentLoaded', function () {
     container.innerHTML = html;
   }
 
-  // === График ===
+  // График
   function renderChart() {
-    const ctx = document.getElementById('habits-chart');
-    if (!ctx) return;
+    const canvas = document.getElementById('habits-chart');
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    const displayWidth = canvas.clientWidth;
+    const displayHeight = canvas.clientHeight;
+
+    if (canvas.width !== displayWidth || canvas.height !== displayHeight) {
+      canvas.width = displayWidth;
+      canvas.height = displayHeight;
+    }
 
     const habitsLog = JSON.parse(localStorage.getItem('habitsLog') || []);
     const last7 = habitsLog.slice(0, 7).reverse();
 
-    const canvas = ctx;
-    const ctx2d = canvas.getContext('2d');
-    const width = canvas.scrollWidth;
-    const height = canvas.height;
-    canvas.width = width;
-    ctx2d.clearRect(0, 0, width, height);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     if (last7.length === 0) {
-      ctx2d.fillStyle = '#777';
-      ctx2d.font = '14px sans-serif';
-      ctx2d.fillText('Нет данных', 20, height / 2);
+      ctx.fillStyle = '#777';
+      ctx.font = '16px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('Нет данных', canvas.width / 2, canvas.height / 2);
       return;
     }
 
@@ -352,29 +355,30 @@ document.addEventListener('DOMContentLoaded', function () {
     const waterData = last7.map(h => h.water.value);
     const sportData = last7.map(h => h.sport.value);
 
-    const barWidth = Math.max(10, (width - 40) / labels.length - 4);
+    const barWidth = Math.max(10, (canvas.width - 40) / labels.length - 4);
     const maxWater = Math.max(...waterData, 1);
     const maxSport = Math.max(...sportData, 1);
+    const chartHeight = canvas.height - 40;
 
     for (let i = 0; i < labels.length; i++) {
       const x = 20 + i * (barWidth + 4);
-      const waterHeight = (waterData[i] / maxWater) * (height - 40);
-      const sportHeight = (sportData[i] / maxSport) * (height - 40);
+      const waterHeight = (waterData[i] / maxWater) * chartHeight;
+      const sportHeight = (sportData[i] / maxSport) * chartHeight;
 
-      ctx2d.fillStyle = '#ff9eb5';
-      ctx2d.fillRect(x, height - 20 - waterHeight, barWidth / 2, waterHeight);
+      ctx.fillStyle = '#ff9eb5';
+      ctx.fillRect(x, canvas.height - 20 - waterHeight, barWidth / 2, waterHeight);
 
-      ctx2d.fillStyle = '#ffb380';
-      ctx2d.fillRect(x + barWidth / 2, height - 20 - sportHeight, barWidth / 2, sportHeight);
+      ctx.fillStyle = '#ffb380';
+      ctx.fillRect(x + barWidth / 2, canvas.height - 20 - sportHeight, barWidth / 2, sportHeight);
 
-      ctx2d.fillStyle = '#777';
-      ctx2d.font = '10px sans-serif';
-      ctx2d.textAlign = 'center';
-      ctx2d.fillText(labels[i], x + barWidth / 2, height - 5);
+      ctx.fillStyle = '#777';
+      ctx.font = '10px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(labels[i], x + barWidth / 2, canvas.height - 5);
     }
   }
 
-  // === Загрузка данных ===
+  // Загрузка данных
   function loadProfile() {
     const p = JSON.parse(localStorage.getItem('profile') || '{}');
     const set = (id, val) => { const el = document.getElementById(id); if (el) el.value = val; };
@@ -412,7 +416,7 @@ document.addEventListener('DOMContentLoaded', function () {
     set('actions-total', habits.length * 5);
   }
 
-  // === Инициализация ===
+  // Инициализация
   loadProfile();
   loadHabits();
   renderNotes();

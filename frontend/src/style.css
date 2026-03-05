@@ -75,14 +75,11 @@ body {
 }
 
 .content {
-  max-width: 428px;
+  width: 100%;
+  max-width: 100%;
+  padding: 20px env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
   margin: 0 auto;
-  padding: 20px 16px;
 }
-
-@media (max-width: 427px) { .content { max-width: 393px; } }
-@media (max-width: 392px) { .content { max-width: 390px; } }
-@media (max-width: 389px) { .content { max-width: 375px; } }
 
 .tab {
   display: none;
@@ -259,7 +256,7 @@ textarea {
 
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
   gap: 16px;
   margin-bottom: 20px;
 }
@@ -344,8 +341,13 @@ li {
   justify-content: center;
 }
 
-#quick-add-btn { bottom: calc(80px + env(safe-area-inset-bottom)); }
-#theme-toggle { bottom: calc(150px + env(safe-area-inset-bottom)); }
+#quick-add-btn {
+  bottom: calc(80px + env(safe-area-inset-bottom));
+}
+
+#theme-toggle {
+  bottom: calc(150px + env(safe-area-inset-bottom));
+}
 
 /* Модалки */
 .modal-overlay {
@@ -383,13 +385,26 @@ li {
 }
 
 /* Дата и график */
+.day-selector {
+  margin-bottom: 20px;
+}
+
+.day-selector h3 {
+  margin-bottom: 12px;
+}
+
 #date-picker {
   width: 100%;
-  padding: 10px;
+  padding: 12px;
   border: 1px solid var(--border);
   border-radius: 12px;
   background: var(--bg);
   color: var(--text);
+  font-size: 16px;
+}
+
+#selected-habits {
+  margin-top: 20px;
 }
 
 .habit-row {
@@ -405,11 +420,13 @@ li {
 }
 #habits-chart {
   width: 100%;
+  height: 150px;
   background: var(--bg);
   border-radius: 12px;
+  display: block;
 }
 
-/* Адаптация под мелкие экраны */
+/* Адаптация */
 @media (max-width: 375px) {
   .stats-grid {
     grid-template-columns: 1fr;
