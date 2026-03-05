@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', function () {
+  // === Вспомогательные функции ===
   function formatDate(date) {
     const d = String(date.getDate()).padStart(2, '0');
     const m = String(date.getMonth() + 1).padStart(2, '0');
@@ -11,23 +12,29 @@ document.addEventListener('DOMContentLoaded', function () {
     return `${now.getDate()} ${months[now.getMonth()]}`;
   }
 
-  document.getElementById('today-date').textContent = getTodayLabel();
+  // === Инициализация ===
+  const todayDateEl = document.getElementById('today-date');
+  if (todayDateEl) {
+    todayDateEl.textContent = getTodayLabel();
+  }
 
-  // Тема
+  // === Тема ===
   const themeToggle = document.getElementById('theme-toggle');
-  const savedTheme = localStorage.getItem('theme') || 'light';
-  document.documentElement.setAttribute('data-theme', savedTheme);
-  themeToggle.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+  if (themeToggle) {
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    themeToggle.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
 
-  themeToggle?.addEventListener('click', () => {
-    const current = document.documentElement.getAttribute('data-theme');
-    const newTheme = current === 'dark' ? 'light' : 'dark';
-    document.documentElement.setAttribute('data-theme', newTheme);
-    localStorage.setItem('theme', newTheme);
-    themeToggle.textContent = newTheme === 'dark' ? '☀️' : '🌙';
-  });
+    themeToggle.addEventListener('click', () => {
+      const current = document.documentElement.getAttribute('data-theme');
+      const newTheme = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+      themeToggle.textContent = newTheme === 'dark' ? '☀️' : '🌙';
+    });
+  }
 
-  // Навигация
+  // === Навигация ===
   document.querySelectorAll('.nav-item').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
@@ -37,7 +44,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 
-  // Фото профиля
+  // === Фото профиля ===
   const photoUpload = document.getElementById('photo-upload');
   const profilePhoto = document.getElementById('profile-photo');
   const photoPlaceholder = document.getElementById('photo-placeholder');
@@ -65,7 +72,7 @@ document.addEventListener('DOMContentLoaded', function () {
     photoPlaceholder.style.display = 'none';
   }
 
-  // Маска даты
+  // === Маска даты ===
   const dobInput = document.getElementById('dob');
   if (dobInput) {
     dobInput.addEventListener('input', e => {
@@ -84,61 +91,27 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  // Тип заметки
+  // === Тип заметки ===
   let noteType = 'bullet';
   const bulletBtn = document.getElementById('type-bullet');
   const numberBtn = document.getElementById('type-number');
 
-  if (bulletBtn) bulletBtn.addEventListener('click', () => {
-    noteType = 'bullet';
-    bulletBtn.classList.add('active');
-    numberBtn.classList.remove('active');
-  });
-  if (numberBtn) numberBtn.addEventListener('click', () => {
-    noteType = 'number';
-    numberBtn.classList.add('active');
-    bulletBtn.classList.remove('active');
-  });
-
-  // Быстрое добавление
-  const quickBtn = document.getElementById('quick-add-btn');
-  const quickModal = document.getElementById('quick-modal');
-  if (quickBtn && quickModal) {
-    quickBtn.addEventListener('click', () => {
-      document.getElementById('quick-title').value = '';
-      document.getElementById('quick-text').value = '';
-      quickModal.style.display = 'flex';
+  if (bulletBtn) {
+    bulletBtn.addEventListener('click', () => {
+      noteType = 'bullet';
+      bulletBtn.classList.add('active');
+      numberBtn.classList.remove('active');
     });
-    document.getElementById('quick-cancel').addEventListener('click', () => {
-      quickModal.style.display = 'none';
-    });
-    document.getElementById('quick-save').addEventListener('click', () => {
-      const title = document.getElementById('quick-title').value.trim() || 'Без заголовка';
-      const text = document.getElementById('quick-text').value.trim();
-      if (text) {
-        saveNote(title, text, noteType);
-        quickModal.style.display = 'none';
-        alert('Заметка добавлена!');
-      }
+  }
+  if (numberBtn) {
+    numberBtn.addEventListener('click', () => {
+      noteType = 'number';
+      numberBtn.classList.add('active');
+      bulletBtn.classList.remove('active');
     });
   }
 
-  // Основное добавление
-  const addNoteBtn = document.getElementById('add-note');
-  if (addNoteBtn) {
-    addNoteBtn.addEventListener('click', () => {
-      const title = document.getElementById('note-title').value.trim() || 'Без заголовка';
-      const text = document.getElementById('note-text').value.trim();
-      if (text) {
-        saveNote(title, text, noteType);
-        document.getElementById('note-title').value = '';
-        document.getElementById('note-text').value = '';
-        alert('Заметка добавлена!');
-      }
-    });
-  }
-
-  // Сохранение заметки
+  // === Заметки ===
   function saveNote(title, text, type) {
     const note = { id: Date.now(), title, text, date: formatDate(new Date()), type };
     const notes = JSON.parse(localStorage.getItem('notes') || '[]');
@@ -148,7 +121,6 @@ document.addEventListener('DOMContentLoaded', function () {
     updateStats();
   }
 
-  // Рендер заметки
   function createNoteElement(note) {
     const div = document.createElement('div');
     div.className = 'card';
@@ -194,7 +166,21 @@ document.addEventListener('DOMContentLoaded', function () {
     return div;
   }
 
-  // Редактирование
+  function renderNotes() {
+    const container = document.getElementById('notes-list');
+    const daily = document.getElementById('daily-notes-list');
+    const today = formatDate(new Date());
+    const notes = JSON.parse(localStorage.getItem('notes') || '[]');
+    if (container) container.innerHTML = '';
+    if (daily) daily.innerHTML = '';
+    notes.forEach(note => {
+      const el = createNoteElement(note);
+      if (container) container.appendChild(el);
+      if (note.date === today && daily) daily.appendChild(createNoteElement(note));
+    });
+  }
+
+  // === Редактирование заметки ===
   document.getElementById('edit-save')?.addEventListener('click', () => {
     const id = parseInt(document.getElementById('edit-id').value);
     const title = document.getElementById('edit-title').value.trim() || 'Без заголовка';
@@ -216,211 +202,187 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('edit-modal').style.display = 'none';
   });
 
-  function renderNotes() {
-    const container = document.getElementById('notes-list');
-    const daily = document.getElementById('daily-notes-list');
-    const today = formatDate(new Date());
-    const notes = JSON.parse(localStorage.getItem('notes') || '[]');
-    if (container) container.innerHTML = '';
-    if (daily) daily.innerHTML = '';
-    notes.forEach(note => {
-      const el = createNoteElement(note);
-      if (container) container.appendChild(el);
-      if (note.date === today && daily) daily.appendChild(createNoteElement(note));
+  // === Быстрое добавление ===
+  const quickBtn = document.getElementById('quick-add-btn');
+  const quickModal = document.getElementById('quick-modal');
+  if (quickBtn && quickModal) {
+    quickBtn.addEventListener('click', () => {
+      document.getElementById('quick-title').value = '';
+      document.getElementById('quick-text').value = '';
+      quickModal.style.display = 'flex';
+    });
+    document.getElementById('quick-cancel').addEventListener('click', () => {
+      quickModal.style.display = 'none';
+    });
+    document.getElementById('quick-save').addEventListener('click', () => {
+      const title = document.getElementById('quick-title').value.trim() || 'Без заголовка';
+      const text = document.getElementById('quick-text').value.trim();
+      if (text) {
+        saveNote(title, text, noteType);
+        quickModal.style.display = 'none';
+        alert('Заметка добавлена!');
+      }
     });
   }
 
-  // Привычки
-  const habitKeys = ['water', 'sport', 'read', 'sleep', 'walk'];
-  const units = { water: ' л', sport: ' мин', read: ' мин', sleep: ' ч', walk: ' мин' };
+  const addNoteBtn = document.getElementById('add-note');
+  if (addNoteBtn) {
+    addNoteBtn.addEventListener('click', () => {
+      const title = document.getElementById('note-title').value.trim() || 'Без заголовка';
+      const text = document.getElementById('note-text').value.trim();
+      if (text) {
+        saveNote(title, text, noteType);
+        document.getElementById('note-title').value = '';
+        document.getElementById('note-text').value = '';
+        alert('Заметка добавлена!');
+      }
+    });
+  }
 
-  habitKeys.forEach(key => {
-    const btn = document.getElementById(`${key}-plus`);
-    if (btn) {
-      btn.addEventListener('click', () => {
-        const input = document.getElementById(`${key}-input`);
-        const sumEl = document.getElementById(`${key}-sum`);
-        const totalEl = document.getElementById(`${key}-total`);
-        if (!input || !sumEl || !totalEl) return;
-        const cur = parseFloat(sumEl.textContent) || 0;
-        const add = parseFloat(input.value) || 0;
-        const newVal = cur + add;
-        sumEl.textContent = newVal + units[key];
-        totalEl.textContent = newVal + units[key];
-        input.value = key === 'water' ? '0.5' : '1';
-      });
-    }
-  });
+  // === Сохранение привычек ===
+  const saveHabitsBtn = document.getElementById('save-habits');
+  if (saveHabitsBtn) {
+    saveHabitsBtn.addEventListener('click', () => {
+      const habits = [
+        { key: 'water', value: parseFloat(document.getElementById('water-sum').textContent) || 0, done: document.getElementById('water-done').checked },
+        { key: 'sport', value: parseFloat(document.getElementById('sport-sum').textContent) || 0, done: document.getElementById('sport-done').checked },
+        { key: 'read', value: parseFloat(document.getElementById('read-sum').textContent) || 0, done: document.getElementById('read-done').checked },
+        { key: 'sleep', value: parseFloat(document.getElementById('sleep-sum').textContent) || 0, done: document.getElementById('sleep-done').checked },
+        { key: 'walk', value: parseFloat(document.getElementById('walk-sum').textContent) || 0, done: document.getElementById('walk-done').checked }
+      ];
 
-  const saveHabits = document.getElementById('save-habits');
-  if (saveHabits) {
-    saveHabits.addEventListener('click', () => {
-      const habits = {};
-      habitKeys.forEach(key => {
-        habits[key] = {
-          value: parseFloat(document.getElementById(`${key}-sum`)?.textContent?.replace(/[^\d.]/g, '') || '0') || 0,
-          done: !!document.getElementById(`${key}-done`)?.checked
-        };
-      });
-      habits.date = formatDate(new Date());
+      const today = formatDate(new Date());
       const log = JSON.parse(localStorage.getItem('habitsLog') || '[]');
-      log.unshift(habits);
+      const existingIndex = log.findIndex(entry => entry.date === today);
+
+      const newEntry = { date: today };
+      habits.forEach(h => {
+        newEntry[h.key] = { value: h.value, done: h.done };
+      });
+
+      if (existingIndex !== -1) {
+        log[existingIndex] = newEntry;
+      } else {
+        log.unshift(newEntry);
+      }
+
       localStorage.setItem('habitsLog', JSON.stringify(log));
       updateStats();
-      renderChart();
-      alert('Прогресс сохранён!');
+      alert('Прогресс за сегодня сохранён!');
     });
   }
 
-  // Профиль
-  const saveProfile = document.getElementById('save-profile');
-  if (saveProfile) {
-    saveProfile.addEventListener('click', () => {
-      localStorage.setItem('profile', JSON.stringify({
-        name: document.getElementById('name')?.value.trim() || 'Ваше имя и фамилия',
-        about: document.getElementById('about')?.value.trim() || 'Чем вы занимаетесь',
-        dob: document.getElementById('dob')?.value.trim() || 'День рождения'
-      }));
-      alert('Профиль сохранён!');
-    });
-  }
+  // === Кнопки "+" для привычек ===
+  function setupHabitPlus(key) {
+    const plusBtn = document.getElementById(`${key}-plus`);
+    const input = document.getElementById(`${key}-input`);
+    const sumEl = document.getElementById(`${key}-sum`);
+    const totalEl = document.getElementById(`${key}-total`);
 
-  // Выбор даты
-  const datePicker = document.getElementById('date-picker');
-  const today = new Date();
-  datePicker.valueAsDate = today;
-
-  datePicker.addEventListener('change', renderHabitsForDate);
-
-  function renderHabitsForDate() {
-    const selectedDate = datePicker.value;
-    const formatted = selectedDate.split('-').reverse().join('.');
-    document.getElementById('selected-date-label').textContent = formatted;
-
-    const habitsLog = JSON.parse(localStorage.getItem('habitsLog') || '[]');
-    const dayData = habitsLog.find(h => h.date === formatted);
-
-    const container = document.getElementById('habits-detail');
-    if (!dayData) {
-      container.innerHTML = '<p>Нет данных за этот день</p>';
-      return;
-    }
-
-    const habitNames = {
-      water: '💧 Вода',
-      sport: '🏃 Спорт',
-      read: '📚 Чтение',
-      sleep: '😴 Сон',
-      walk: '🚶 Прогулка'
-    };
-
-    let html = '';
-    for (const key of habitKeys) {
-      const value = dayData[key].value;
-      const unit = units[key];
-      const done = dayData[key].done ? '✅' : '❌';
-      html += `<div class="habit-row"><strong>${habitNames[key]}</strong>: ${value}${unit} ${done}</div>`;
-    }
-    container.innerHTML = html;
-  }
-
-  // График
-  function renderChart() {
-    const canvas = document.getElementById('habits-chart');
-    if (!canvas) return;
-
-    const ctx = canvas.getContext('2d');
-    const displayWidth = canvas.clientWidth;
-    const displayHeight = canvas.clientHeight;
-
-    if (canvas.width !== displayWidth || canvas.height !== displayHeight) {
-      canvas.width = displayWidth;
-      canvas.height = displayHeight;
-    }
-
-    const habitsLog = JSON.parse(localStorage.getItem('habitsLog') || []);
-    const last7 = habitsLog.slice(0, 7).reverse();
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    if (last7.length === 0) {
-      ctx.fillStyle = '#777';
-      ctx.font = '16px sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText('Нет данных', canvas.width / 2, canvas.height / 2);
-      return;
-    }
-
-    const labels = last7.map(h => h.date);
-    const waterData = last7.map(h => h.water.value);
-    const sportData = last7.map(h => h.sport.value);
-
-    const barWidth = Math.max(10, (canvas.width - 40) / labels.length - 4);
-    const maxWater = Math.max(...waterData, 1);
-    const maxSport = Math.max(...sportData, 1);
-    const chartHeight = canvas.height - 40;
-
-    for (let i = 0; i < labels.length; i++) {
-      const x = 20 + i * (barWidth + 4);
-      const waterHeight = (waterData[i] / maxWater) * chartHeight;
-      const sportHeight = (sportData[i] / maxSport) * chartHeight;
-
-      ctx.fillStyle = '#ff9eb5';
-      ctx.fillRect(x, canvas.height - 20 - waterHeight, barWidth / 2, waterHeight);
-
-      ctx.fillStyle = '#ffb380';
-      ctx.fillRect(x + barWidth / 2, canvas.height - 20 - sportHeight, barWidth / 2, sportHeight);
-
-      ctx.fillStyle = '#777';
-      ctx.font = '10px sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText(labels[i], x + barWidth / 2, canvas.height - 5);
-    }
-  }
-
-  // Загрузка данных
-  function loadProfile() {
-    const p = JSON.parse(localStorage.getItem('profile') || '{}');
-    const set = (id, val) => { const el = document.getElementById(id); if (el) el.value = val; };
-    set('name', p.name || '');
-    set('about', p.about || '');
-    set('dob', p.dob || '');
-  }
-
-  function loadHabits() {
-    const log = JSON.parse(localStorage.getItem('habitsLog') || '[]');
-    const today = formatDate(new Date());
-    const h = log.find(x => x.date === today);
-    if (h) {
-      habitKeys.forEach(key => {
-        const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val + units[key]; };
-        set(`${key}-sum`, h[key].value);
-        set(`${key}-total`, h[key].value);
-        const chk = document.getElementById(`${key}-done`);
-        if (chk) chk.checked = h[key].done;
+    if (plusBtn && input && sumEl && totalEl) {
+      plusBtn.addEventListener('click', () => {
+        const addValue = parseFloat(input.value) || 0;
+        const currentSum = parseFloat(sumEl.textContent) || 0;
+        const newSum = currentSum + addValue;
+        const unit = key === 'water' ? ' л' : key === 'sleep' ? ' ч' : ' мин';
+        sumEl.textContent = newSum + unit;
+        totalEl.textContent = newSum + unit;
       });
     }
   }
 
-  function updateStats() {
-    const notes = JSON.parse(localStorage.getItem('notes') || '[]');
-    const habits = JSON.parse(localStorage.getItem('habitsLog') || '[]');
-    const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
-    set('streak', habits.length);
-    set('notes-count', notes.length);
-    set('water-stats', habits.reduce((s, h) => s + h.water.value, 0).toFixed(1) + ' л');
-    set('sport-stats', Math.round(habits.reduce((s, h) => s + h.sport.value, 0)) + ' мин');
-    set('read-stats', Math.round(habits.reduce((s, h) => s + h.read.value, 0)) + ' мин');
-    set('sleep-stats', Math.round(habits.reduce((s, h) => s + h.sleep.value, 0)) + ' ч');
-    set('walk-stats', Math.round(habits.reduce((s, h) => s + h.walk.value, 0)) + ' мин');
-    set('actions-total', habits.length * 5);
+  ['water', 'sport', 'read', 'sleep', 'walk'].forEach(key => {
+    setupHabitPlus(key);
+  });
+
+  // === Выбор даты ===
+  const datePicker = document.getElementById('date-picker');
+  if (datePicker) {
+    const today = new Date();
+    datePicker.valueAsDate = today;
+    datePicker.addEventListener('change', () => {
+      const selectedDate = datePicker.value;
+      const formatted = selectedDate.split('-').reverse().join('.');
+      document.getElementById('selected-date-label').textContent = formatted;
+
+      const habitsLog = JSON.parse(localStorage.getItem('habitsLog') || '[]');
+      const dayData = habitsLog.find(h => h.date === formatted);
+      const container = document.getElementById('habits-detail');
+
+      if (!dayData || !container) {
+        if (container) container.innerHTML = '<p>Нет данных за этот день</p>';
+        return;
+      }
+
+      const habitMap = {
+        water: '💧 Вода',
+        sport: '🏃 Спорт',
+        read: '📚 Чтение',
+        sleep: '😴 Сон',
+        walk: '🚶 Прогулка'
+      };
+
+      let html = '';
+      for (const [key, name] of Object.entries(habitMap)) {
+        if (dayData[key]) {
+          const unit = key === 'water' ? ' л' : key === 'sleep' ? ' ч' : ' мин';
+          const done = dayData[key].done ? '✅' : '❌';
+          html += `<div class="habit-row"><strong>${name}</strong>: ${dayData[key].value}${unit} ${done}</div>`;
+        }
+      }
+      container.innerHTML = html;
+    });
   }
 
-  // Инициализация
-  loadProfile();
-  loadHabits();
+  // === Обновление статистики ===
+  function updateStats() {
+    const notes = JSON.parse(localStorage.getItem('notes') || '[]');
+    const habitsLog = JSON.parse(localStorage.getItem('habitsLog') || '[]');
+
+    document.getElementById('notes-count').textContent = notes.length;
+    document.getElementById('actions-total').textContent = habitsLog.length * 5;
+    document.getElementById('streak').textContent = habitsLog.length;
+
+    // Вода
+    const waterTotal = habitsLog.reduce((sum, day) => sum + (day.water?.value || 0), 0);
+    document.getElementById('water-stats').textContent = waterTotal.toFixed(1) + ' л';
+
+    // Спорт
+    const sportTotal = habitsLog.reduce((sum, day) => sum + (day.sport?.value || 0), 0);
+    document.getElementById('sport-stats').textContent = Math.round(sportTotal) + ' мин';
+
+    // Чтение
+    const readTotal = habitsLog.reduce((sum, day) => sum + (day.read?.value || 0), 0);
+    document.getElementById('read-stats').textContent = Math.round(readTotal) + ' мин';
+
+    // Сон
+    const sleepTotal = habitsLog.reduce((sum, day) => sum + (day.sleep?.value || 0), 0);
+    document.getElementById('sleep-stats').textContent = Math.round(sleepTotal) + ' ч';
+
+    // Прогулка
+    const walkTotal = habitsLog.reduce((sum, day) => sum + (day.walk?.value || 0), 0);
+    document.getElementById('walk-stats').textContent = Math.round(walkTotal) + ' мин';
+  }
+
+  // === Инициализация ===
   renderNotes();
   updateStats();
-  renderHabitsForDate();
-  renderChart();
+
+  // Загрузка сохранённых значений привычек за сегодня
+  const today = formatDate(new Date());
+  const habitsLog = JSON.parse(localStorage.getItem('habitsLog') || '[]');
+  const todayData = habitsLog.find(h => h.date === today);
+  if (todayData) {
+    ['water', 'sport', 'read', 'sleep', 'walk'].forEach(key => {
+      const value = todayData[key]?.value || 0;
+      const done = todayData[key]?.done || false;
+      const unit = key === 'water' ? ' л' : key === 'sleep' ? ' ч' : ' мин';
+      const sumEl = document.getElementById(`${key}-sum`);
+      const totalEl = document.getElementById(`${key}-total`);
+      const doneEl = document.getElementById(`${key}-done`);
+      if (sumEl) sumEl.textContent = value + unit;
+      if (totalEl) totalEl.textContent = value + unit;
+      if (doneEl) doneEl.checked = done;
+    });
+  }
 });
