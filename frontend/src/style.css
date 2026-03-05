@@ -430,3 +430,18 @@ button, input, textarea {
   margin-left: 16px;
   margin-right: 16px;
 }
+
+/* Отступы для выбора даты */
+#date-picker {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 16px;
+  /* Добавляем отступы по бокам */
+  margin-left: 16px;
+  margin-right: 16px;
+  box-sizing: border-box; /* чтобы ширина оставалась 100% с учётом отступов */
+}
